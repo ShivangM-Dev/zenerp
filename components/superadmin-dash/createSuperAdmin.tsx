@@ -16,10 +16,7 @@ const CreateSuperAdmin = () => {
   return (
     <div>
         <h1 className='text-4xl'>
-           
-                    <CreateSuperAdminForm/>
-
-            This component will hold the create userAdmin Form for now
+          <CreateSuperAdminForm/>
         </h1>
     </div>
   )
