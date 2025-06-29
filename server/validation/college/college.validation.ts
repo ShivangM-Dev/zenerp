@@ -48,10 +48,10 @@ export const collegeSchema = z
       ),
 
     confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match.',
-    path: ['confirmPassword'], // this sets the error on confirmPassword field
-  });
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: 'Passwords do not match.',
+      path: ['confirmPassword'], // this sets the error on confirmPassword field
+    });
 
 export type CollegeFormValues = z.infer<typeof collegeSchema>;

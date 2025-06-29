@@ -87,17 +87,16 @@ export const createSuperAdmin = async (data: SuperAdminFormValues) => {
 }
 
 
-
-
 export const createCollege = async (data: CollegeFormValues) => {
+  console.log('🔧 Creating Supabase client...')
   const supabase = await createClient()
 
-  console.log("Step 1: Creating user in Supabase Auth")
   // Step 1: Create user in Supabase Auth
+  console.log('🧪 Attempting to create auth user...')
   const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
     email: data.email,
     password: data.password,
-    email_confirm: false, // Will trigger confirmation email
+    email_confirm: false,
     user_metadata: {
       fullName: data.collegeName,
       username: data.userName,
@@ -106,48 +105,67 @@ export const createCollege = async (data: CollegeFormValues) => {
   })
 
   if (authError || !authUser?.user?.id) {
-    console.error("Auth Error:", authError)
-    return { success: false, message: authError?.message || 'Failed to create user.' }
+    console.error('❌ Auth createUser error:', authError)
+    return {
+      success: false,
+      message: authError?.message || 'Failed to create user in auth.',
+    }
   }
 
   const authUserId = authUser.user.id
-  console.log("Auth User created successfully:", authUserId)
+  console.log('✅ Auth user created with ID:', authUserId)
 
-  console.log("Step 2: Inserting into colleges table")
   // Step 2: Insert into colleges table
-  const { error: insertError } = await supabase
-    .from('colleges')
-    .insert({
-      name: data.collegeName,
-      email: data.email,
-      auth_user_id: authUserId,
-      college_name: data.collegeName,
-      created_by: authUserId,
-      
-    })
+  console.log('📥 Inserting into colleges table...')
+  const { error: insertError } = await supabase.from('colleges').insert({
+    auth_user_id: authUserId,
+    userName: data.userName,
+    collegeName: data.collegeName,
+    email: data.email,
+    address: data.address,
+    state: data.state,
+    pinCode: data.pinCode,
+    contactNumber: data.contactNumber,
+   
+  })
 
   if (insertError) {
-    console.error("Insert Error:", insertError)
-    return { success: false, message: insertError.message || 'Failed to insert into colleges table.' }
+    console.error('❌ Colleges insert error:', insertError)
+
+    // Rollback: Delete auth user
+    await supabase.auth.admin.deleteUser(authUserId)
+    console.log('🗑️ Rolled back: Deleted auth user due to DB insert failure.')
+
+    return {
+      success: false,
+      message: insertError.message || 'Failed to insert into colleges table.',
+    }
   }
 
-  console.log("College inserted successfully.")
+  // Step 3: Assign role in user_role table
+  console.log('👤 Assigning role in user_role table...')
+  const { error: roleError } = await supabase.from('user_role').insert({
+    auth_user_id: authUserId,
+    role: 'college',
+  })
 
-  console.log("Step 3: Assigning role in user_roles table")
-  // Step 3: Assign role in user_roles table
-  // const { error: roleError } = await supabase
-  //   .from('user_roles')
-  //   .insert({
-  //     auth_user_id: authUserId,
-  //     role: 'college',
-  //   })
+  if (roleError) {
+    console.error('❌ Role assignment error:', roleError)
 
-  // if (roleError) {
-  //   console.error("Role Error:", roleError)
-  //   return { success: false, message: roleError.message || 'Failed to assign role in user_roles table.' }
-  // }
+    // Rollback both college and auth user
+    await supabase.from('colleges').delete().eq('auth_user_id', authUserId)
+    await supabase.auth.admin.deleteUser(authUserId)
+    console.log('🗑️ Rolled back: Deleted auth user and college due to role insert failure.')
 
-  console.log("Role assigned successfully.")
+    return {
+      success: false,
+      message: roleError.message || 'Failed to assign role to user.',
+    }
+  }
 
-  return { success: true, message: 'College created successfully!' }
+  console.log('✅ College created successfully.')
+  return {
+    success: true,
+    message: 'College created successfully!',
+  }
 }

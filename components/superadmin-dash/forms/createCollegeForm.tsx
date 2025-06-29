@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 
 import { useTransition } from 'react'
 import { useForm } from 'react-hook-form'
@@ -30,6 +30,9 @@ import {
 export default function CreateCollegeForm() {
 
   const [isPending, startTransition] = useTransition()
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
 
   const states = [
     "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat",
@@ -86,13 +89,17 @@ export default function CreateCollegeForm() {
           <Button variant="outline">Add College</Button>
         </DialogTrigger>
 
-        <DialogContent className="space-y-4">
-        
+        <DialogContent className="space-y-4 max-h-[90vh] scrollbar-none hide-scrollbar ">
+
         <DialogHeader>
-            <DialogTitle>Add Super Admin</DialogTitle>
+          <DialogTitle>Add Super Admin</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 overflow-y-auto pr-2"
+          style={{ maxHeight: 'calc(90vh - 80px)' }}
+        >
 
             <div className="space-y-2">
               <Label htmlFor="userName">Username</Label>
@@ -160,6 +167,19 @@ export default function CreateCollegeForm() {
               {errors.pinCode && (
                 <p className="text-red-500 text-sm">{errors.pinCode.message}</p>
               )}
+            </div> 
+            
+            <div className="space-y-2">
+              <Label htmlFor="pinCode">Contact Number</Label>
+              <Input
+                type='number'
+                id="contactNumber"
+                {...register('contactNumber')}
+                placeholder="121345"
+              />
+              {errors.contactNumber && (
+                <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -174,38 +194,58 @@ export default function CreateCollegeForm() {
                 <p className="text-red-500 text-sm">{errors.email.message}</p>
               )}
             </div>
-
+          
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                {...register('password')}
-                placeholder="********"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  {...register('password')}
+                  placeholder="********"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
               {errors.password && (
                 <p className="text-red-500 text-sm">{errors.password.message}</p>
               )}
             </div>
 
+
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <div className="relative">
               <Input
                 id="confirmPassword"
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 {...register('confirmPassword')}
                 placeholder="********"
               />
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>
-              )}
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500"
+              >
+                {showConfirmPassword ? "Hide" : "Show"}
+              </button>
             </div>
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>
+            )}
+            </div>
+
 
 
             <Button
               type="submit"
               disabled={isPending}
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white cursor-pointer"
             >
               {isPending ? 'Adding...' : 'Add College'}
             </Button>
