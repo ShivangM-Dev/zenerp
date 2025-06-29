@@ -10,6 +10,16 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 import { createCollege } from '@/server/actions/superadmin/superadmin.actions'
 import {
@@ -17,9 +27,20 @@ import {
   CollegeFormValues,
 } from '@/server/validation/college/college.validation'
 
-export default function CreateCollege() {
+export default function CreateCollegeForm() {
 
   const [isPending, startTransition] = useTransition()
+
+  const states = [
+    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat",
+    "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh",
+    "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
+    "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh",
+    "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh",
+    "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh",
+    "Lakshadweep", "Puducherry"
+  ];
+
 
   const {
     register,
@@ -30,13 +51,19 @@ export default function CreateCollege() {
     resolver: zodResolver(collegeSchema),
     defaultValues: {
       userName: '',
+      collegeName: '',
       address: '',
+      state: '',
+      pinCode:'',
+      contactNumber: '',
       email: '',
       password: '',
-      collegeName: '',
-      
+      confirmPassword: '', 
     },
-  })
+  });
+  
+
+  
 
   const onSubmit = (data: CollegeFormValues) => {
     startTransition(async () => {
@@ -53,12 +80,20 @@ export default function CreateCollege() {
 
   return (
     <div>
-      <Card className="rounded-2xl shadow-md">
-        <CardHeader>
-          <CardTitle>Add College</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <Dialog>
+
+        <DialogTrigger asChild>
+          <Button variant="outline">Add College</Button>
+        </DialogTrigger>
+
+        <DialogContent className="space-y-4">
+        
+        <DialogHeader>
+            <DialogTitle>Add Super Admin</DialogTitle>
+        </DialogHeader>
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
             <div className="space-y-2">
               <Label htmlFor="userName">Username</Label>
               <Input
@@ -72,7 +107,7 @@ export default function CreateCollege() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="collegeName">Full Name</Label>
+              <Label htmlFor="collegeName">College Name</Label>
               <Input
                 id="collegeName"
                 {...register('collegeName')}
@@ -80,6 +115,50 @@ export default function CreateCollege() {
               />
               {errors.collegeName && (
                 <p className="text-red-500 text-sm">{errors.collegeName.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                {...register('address')}
+                placeholder="Address of College"
+              />
+              {errors.address && (
+                <p className="text-red-500 text-sm">{errors.address.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+            <Label htmlFor="state">State</Label>
+            <select
+              id="state"
+              {...register("state")}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            >
+              <option value="">Select a state</option>
+              {states.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
+            </select>
+            {errors.state && (
+              <p className="text-red-500 text-sm">{errors.state.message}</p>
+            )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="pinCode">Pin Code</Label>
+              <Input
+                type='number'
+                id="pinCode"
+                {...register('pinCode')}
+                placeholder="121345"
+              />
+              {errors.pinCode && (
+                <p className="text-red-500 text-sm">{errors.pinCode.message}</p>
               )}
             </div>
 
@@ -110,16 +189,18 @@ export default function CreateCollege() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="collegeName">College Name</Label>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
               <Input
-                id="collegeName"
-                {...register('collegeName')}
-                placeholder="XYZ College"
+                id="confirmPassword"
+                type="password"
+                {...register('confirmPassword')}
+                placeholder="********"
               />
-              {errors.collegeName && (
-                <p className="text-red-500 text-sm">{errors.collegeName.message}</p>
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>
               )}
             </div>
+
 
             <Button
               type="submit"
@@ -129,8 +210,8 @@ export default function CreateCollege() {
               {isPending ? 'Adding...' : 'Add College'}
             </Button>
           </form>
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
       <Toaster position="top-center" richColors closeButton />
     </div>
   )

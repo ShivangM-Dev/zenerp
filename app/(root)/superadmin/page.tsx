@@ -1,3 +1,4 @@
+import CreateCollege from '@/components/superadmin-dash/createColllege'
 import CreateSuperAdmin from '@/components/superadmin-dash/createSuperAdmin'
 import SuperAdminTabel from '@/components/superadmin-dash/table/superadminTable'
 import React from 'react'
@@ -8,6 +9,7 @@ const page = () => {
         Homepage
         <CreateSuperAdmin/>
         <SuperAdminTabel/>
+        <CreateCollege/>
     </div>
   )
 }
