@@ -71,7 +71,7 @@ export function DataTable({ columns, data }: DataTableProps) {
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No superadmins found.
+                No College found.
               </TableCell>
             </TableRow>
           )}

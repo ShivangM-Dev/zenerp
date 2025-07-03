@@ -96,9 +96,9 @@ export const createCollege = async (data: CollegeFormValues) => {
   const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
     email: data.email,
     password: data.password,
-    email_confirm: false,
+    email_confirm: true,
     user_metadata: {
-      fullName: data.collegeName,
+      fullName: data.collegeName, 
       username: data.userName,
       role: 'college',
     },
